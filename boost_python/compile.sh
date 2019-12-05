@@ -1,0 +1,1 @@
+g++ -shared -o helloworld.so -fPIC -I/usr/include/python3.6m/ demo.cc -lpython3.6m -lboost_python3
