@@ -16,7 +16,7 @@ void RTDialect::initialize() {
 #define GET_OP_LIST
 #include "rt_ops.cpp.inc"
       >();
-  addTypes<ChainType>();
+  addTypes<ChainType, ComplexType>();
 }
 
 mlir::Type RTDialect::parseType(mlir::DialectAsmParser &parser) const {
