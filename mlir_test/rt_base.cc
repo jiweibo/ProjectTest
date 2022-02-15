@@ -1,4 +1,5 @@
 #include "rt_base.h"
+#include "types.h"
 
 #include "rt_base.cpp.inc"
 
@@ -20,6 +21,7 @@ void RTDialect::initialize() {
 #define GET_OP_LIST
 #include "rt_ops.cpp.inc"
       >();
+  addTypes<ChainType>();
 }
 
 

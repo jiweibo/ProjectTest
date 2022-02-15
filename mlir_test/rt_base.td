@@ -11,4 +11,8 @@ def RT_Dialect : Dialect {
   }];
 }
 
+def RT_ChainType :
+  Type<CPred<"$_self.isa<rt::ChainType>()">, "!rt.chain type">,
+  BuildableType<"$_builder.getType<rt::ChainType>()">;
+
 #endif // RT_BASE
