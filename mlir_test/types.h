@@ -2,6 +2,7 @@
 #define RT_TYPES_H_
 
 #include "mlir/IR/Types.h"
+#include "mlir/IR/BuiltinTypes.h"
 
 #include <utility>
 
@@ -64,11 +65,11 @@ class ComplexType : public mlir::Type::TypeBase<ComplexType, mlir::Type, Complex
   /// This method is used to get an instance of the 'ComplexType'. This method
   /// asserts that all of the construction invariants were satisfied. To
   /// gracefully handle failed construction, getChecked should be used instead.
-  static ComplexType get(unsigned param, mlir::IntegerType type) {
+  static ComplexType get(::mlir::MLIRContext *context, unsigned param, mlir::IntegerType type) {
     // Call into a helper 'get' method in 'TypeBase' to get a uniqued instance
     // of this type. All parameters to the storage class are passed after the
     // context.
-    return Base::get(type.getContext(), param, type);
+    return Base::get(context, param, type);
   }
 
   /// This method is used to get an instance of the 'ComplexType'. If any of the

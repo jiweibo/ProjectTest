@@ -3,32 +3,11 @@
 
 #include "mlir/IR/Dialect.h"
 #include "mlir/IR/DialectImplementation.h"
+#include "mlir/IR/Types.h"
 
-namespace rt {
+#include "rt_base.h.inc"
 
-class RTDialect : public ::mlir::Dialect {
-  explicit RTDialect(::mlir::MLIRContext *context)
-    : ::mlir::Dialect(getDialectNamespace(), context,
-      ::mlir::TypeID::get<RTDialect>()) {
-
-    initialize();
-  }
-
-  /// Parse a type registered to this dialect.
-  mlir::Type parseType(mlir::DialectAsmParser &parser) const override;
-
-  /// Print a type registered to this dialect.
-  void printType(mlir::Type, mlir::DialectAsmPrinter &) const override;
-
-  void initialize();
-  friend class ::mlir::MLIRContext;
-public:
-  ~RTDialect() override = default;
-  static constexpr ::llvm::StringLiteral getDialectNamespace() {
-    return ::llvm::StringLiteral("rt");
-  }
-};
-
-} // namespace rt
+#define GET_TYPEDEF_CLASSES
+#include "rt_types.h.inc"
 
 #endif // RT_BASE_H_

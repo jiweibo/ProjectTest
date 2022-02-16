@@ -22,6 +22,8 @@ mlir_tablegen(rt_ops.h.inc -gen-op-decls)
 mlir_tablegen(rt_ops.cpp.inc -gen-op-defs)
 mlir_tablegen(rt_base.h.inc -gen-dialect-decls -dialect=rt)
 mlir_tablegen(rt_base.cpp.inc -gen-dialect-defs -dialect=rt)
+mlir_tablegen(rt_types.h.inc -gen-typedef-decls)
+mlir_tablegen(rt_types.cpp.inc -gen-typedef-defs)
 add_public_tablegen_target(MLIRRTIncGen)
 add_custom_target(rt_base_inc DEPENDS MLIRRTIncGen)
 
