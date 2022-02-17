@@ -1,5 +1,7 @@
 #include "rt_base.h"
 #include "mlir/IR/BuiltinTypes.h"
+#include "mlir/IR/Builders.h"
+#include "mlir/IR/Dialect.h"
 #include "mlir/IR/Types.h"
 #include "rt_ops.h"
 #include "types.h"
@@ -11,6 +13,9 @@
 
 #define GET_TYPEDEF_CLASSES
 #include "rt_types.cpp.inc"
+
+#define GET_OP_CLASSES
+#include "rt_ops.cpp.inc"
 
 namespace rt {
 
@@ -92,6 +97,14 @@ void RTDialect::printType(mlir::Type type,
   } else {
     llvm_unreachable("unknown rt type");
   }
+}
+
+::mlir::Type rt::PairType::parse(::mlir::AsmParser &parser) {
+  // TODO(wilber)
+  return mlir::Type();
+}
+void rt::PairType::print(::mlir::AsmPrinter &printer) const {
+  // TODO(wilber)
 }
 
 }  // namespace rt

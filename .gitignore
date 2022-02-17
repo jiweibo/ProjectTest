@@ -32,3 +32,8 @@
 *.app
 
 build/
+.vscode
+compile_commands.json
+.clangd/
+.cache/
+
