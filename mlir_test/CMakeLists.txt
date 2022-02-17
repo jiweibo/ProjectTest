@@ -29,7 +29,7 @@ mlir_tablegen(rt_types.cpp.inc -gen-typedef-defs)
 add_public_tablegen_target(MLIRRTIncGen)
 add_custom_target(rt_base_inc DEPENDS MLIRRTIncGen)
 
-set(rt_srcs rt_base.cc)
+set(rt_srcs rt_base.cc rt_ops.cc)
 add_library(rt SHARED ${rt_srcs})
 target_link_libraries(rt ${mlir_libs})
 add_dependencies(rt rt_base_inc)

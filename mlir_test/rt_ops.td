@@ -5,11 +5,33 @@ include "rt_base.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
 
 
-class RT_Op<string mnemonic, list<OpTrait> traits = []>
+class RT_Op<string mnemonic, list<Trait> traits = []>
     : Op<RT_Dialect, mnemonic, traits> {
-  // let printer = [{ return ::print(p, *this); }];
-  // let verifier = [{ return ::verify(*this); }];
-  // let parser = [{ return ::parse$cppClass(parser, result); }];
+
+  // Each registered op in the rt namespace needs to provide all of a printer,
+  // parser and verifier.
+  let parser = [{ return rt::parse$cppClass(parser, result); }];
+  let printer = [{ return rt::print(p, *this); }];
+  let verifier = [{ return rt::verify(*this); }];
+}
+
+def ReturnOp : RT_Op<"return", [Terminator]> {
+  let summary = "rt.return operation";
+  let description = [{
+    The "rt.return" operation represents a return operation within a function.
+    The operation takes variable number of operands and produces no results.
+    The operand number and types must match the signature of the function
+    that contains the operation. For example:
+
+      func @foo() : (i32, f8) {
+        ...
+        rt.return %0, %1 : i32, f8
+  }];
+  let arguments = (ins Variadic<AnyType>:$operands);
+
+  // let builders = [
+  //   OpBuilder<(ins),
+  //   [{ build($_builder, $_state, llvm::None); }]>];
 }
 
 class ConstantOp<string suffix, Type baseType, Attr attr>
@@ -18,7 +40,7 @@ class ConstantOp<string suffix, Type baseType, Attr attr>
 
   let arguments = (ins attr:$value);
   let results = (outs baseType);
-  // let assemblyFormat = "$value attr-dict";
+  let assemblyFormat = "$value attr-dict";
   let verifier = ?;
 }
 
