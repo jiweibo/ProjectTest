@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "host_context/value.h"
 
 namespace rt {
 

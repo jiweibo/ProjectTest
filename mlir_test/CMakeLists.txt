@@ -36,3 +36,7 @@ add_dependencies(rt rt_base_inc)
 
 add_executable(rtopt opt.cc init_rt_dialects.cc)
 target_link_libraries(rtopt rt)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+add_subdirectory(host_context)
