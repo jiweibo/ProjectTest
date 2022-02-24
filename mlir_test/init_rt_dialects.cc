@@ -2,10 +2,9 @@
 
 #include "rt_base.h"
 
-
 namespace rt {
 
-void RegisterRTDialects(mlir::DialectRegistry &registry) {
+void RegisterRTDialects(mlir::DialectRegistry& registry) {
   registry.insert<rt::RTDialect>();
 }
 

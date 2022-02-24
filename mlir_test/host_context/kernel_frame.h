@@ -1,12 +1,11 @@
 #pragma  once
 
-#include "attribute_utils.h"
+#include "host_context/attribute_utils.h"
 #include "host_context/value.h"
 #include "llvm/ADT/ArrayRef.h"
 #include <cassert>
 
 namespace rt {
-class Value;
 
 // SyncKernelFrame captures the states associated with a kernel invocation,
 // including the input arguments, attributes, result values, and the execution

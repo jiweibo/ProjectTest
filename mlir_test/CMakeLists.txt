@@ -27,9 +27,14 @@ mlir_tablegen(rt_base.cpp.inc -gen-dialect-defs -dialect=rt)
 mlir_tablegen(rt_types.h.inc -gen-typedef-decls)
 mlir_tablegen(rt_types.cpp.inc -gen-typedef-defs)
 add_public_tablegen_target(MLIRRTIncGen)
-add_custom_target(rt_base_inc DEPENDS MLIRRTIncGen)
 
-set(rt_srcs rt_base.cc rt_ops.cc)
+set(LLVM_TARGET_DEFINITIONS rt_pass.td)
+mlir_tablegen(rt_pass.inc -gen-rewriters)
+add_public_tablegen_target(MLIRRTPassIncGen)
+add_custom_target(rt_base_inc DEPENDS MLIRRTIncGen MLIRRTPassIncGen)
+
+
+set(rt_srcs rt_base.cc rt_ops.cc rt_pass.cc)
 add_library(rt SHARED ${rt_srcs})
 target_link_libraries(rt ${mlir_libs})
 add_dependencies(rt rt_base_inc)

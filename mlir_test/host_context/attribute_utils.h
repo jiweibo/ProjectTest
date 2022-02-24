@@ -15,7 +15,7 @@ class Attribute {
   const T& operator*() const { return value_; }
 
  private:
-  static_assert(!std::is_same<T, std::string>, "Use StringAttribute instead of Attribute<std::string>");
+  static_assert(!std::is_same<T, std::string>(), "Use StringAttribute instead of Attribute<std::string>");
   const T& value_;
 };
 
