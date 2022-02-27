@@ -69,6 +69,8 @@ def NewChainOp : RT_Op<"new.chain", [NoSideEffect]> {
   let results = (outs RT_ChainType);
   let assemblyFormat = "attr-dict";
   let verifier = ?;
+  // let parser = ?;
+  // let printer = ?;
 }
 
 class AddOp<string suffix, Type type>
@@ -124,8 +126,10 @@ class PrintOp<string suffix, Type type>
   }];
   let arguments = (ins type, RT_ChainType);
   let results = (outs RT_ChainType);
-  let assemblyFormat = "operands attr-dict";
+  // let assemblyFormat = "operands attr-dict";
   let verifier = ?;
+  let parser = ?;
+  let printer = ?;
 }
 def PrintI1Op : PrintOp<"i1", I1>;
 def PrintI32Op : PrintOp<"i32", I32>;
