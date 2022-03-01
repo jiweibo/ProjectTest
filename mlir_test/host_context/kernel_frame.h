@@ -16,6 +16,8 @@ namespace rt {
 class KernelFrame {
  public:
 
+  llvm::ArrayRef<Value*> GetRegisters() const { return registers_; }
+
   // Get the number of arguments.
   int GetNumArgs() const {
     return argument_indices_.size();
