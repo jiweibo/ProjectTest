@@ -18,7 +18,7 @@ namespace rt {
 // ===----------------------------------------------------------===//
 
 #define RT_KERNEL(...)                                                         \
-  ::rt::RtKernelImpl<decltype(&__VA_ARGS__), &__VA_ARGS__>::Invoke;
+  ::rt::RtKernelImpl<decltype(&__VA_ARGS__), &__VA_ARGS__>::Invoke
 
 // Kernels should use this so we know the kernel has an argument.
 template <typename T>

@@ -1,1 +1,1 @@
-add_library(value value.cc)
+add_library(host_context value.cc kernel_frame.cc kernel_registry.cc)

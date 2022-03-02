@@ -15,12 +15,13 @@ using KernelImplementation = std::function<void(KernelFrame* frame)>;
 // implementations of those functions, along with type mappings.
 class KernelRegistry {
  public:
+  KernelRegistry();
   ~KernelRegistry();
 
   void AddKernel(llvm::StringRef name, KernelImplementation fn);
   KernelImplementation GetKernel(llvm::StringRef name) const;
  private:
-  KernelRegistry();
+  // KernelRegistry();
   struct Impl;
   std::unique_ptr<Impl> impl_;
 };

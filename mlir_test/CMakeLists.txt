@@ -19,6 +19,9 @@ include_directories(${LLVM_INCLUDE_DIRS})
 include_directories(${MLIR_INCLUDE_DIRS})
 get_property(mlir_libs GLOBAL PROPERTY MLIR_ALL_LIBS)
 
+llvm_map_components_to_libnames(llvm_libs Support Core irreader
+        X86 executionengine orcjit mcjit all codegen)
+
 set(LLVM_TARGET_DEFINITIONS rt_ops.td)
 mlir_tablegen(rt_ops.h.inc -gen-op-decls)
 mlir_tablegen(rt_ops.cpp.inc -gen-op-defs)
@@ -45,3 +48,9 @@ target_link_libraries(rtopt rt)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(host_context)
+add_subdirectory(kernel)
+
+#if (WITH_TESTING)
+#  add_library(gtest_main gtest_main.cc)
+#  target_link_libraries(gtest_main gtest)
+#endif()

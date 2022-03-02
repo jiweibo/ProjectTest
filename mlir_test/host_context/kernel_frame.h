@@ -3,6 +3,7 @@
 #include "host_context/attribute_utils.h"
 #include "host_context/value.h"
 #include "llvm/ADT/ArrayRef.h"
+#include "llvm/Support/raw_ostream.h"
 #include <cassert>
 
 namespace rt {
@@ -99,7 +100,7 @@ class KernelFrameBuilder : public KernelFrame {
   explicit KernelFrameBuilder(llvm::ArrayRef<Value*> registers) : KernelFrame(registers) {}
 
   void SetArguments(llvm::ArrayRef<uint32_t> argument_indices) {
-    argument_indices_ = argument_indices_;
+    argument_indices_ = argument_indices;
   }
   void SetAttributes(llvm::ArrayRef<const void*> attributes) {
     attributes_ = attributes;
