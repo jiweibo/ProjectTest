@@ -51,7 +51,7 @@ class RemainingArguments {
   llvm::ArrayRef<Value*> registers_;
 };
 
-namespace internal {
+// namespace internal {
 
 template <typename F, F f>
 struct RtKernelImpl;
@@ -235,6 +235,6 @@ private:
   };
 };
 
-} // namespace internal
+// } // namespace internal
 
 } // namespace rt
