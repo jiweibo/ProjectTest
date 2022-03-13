@@ -1,7 +1,7 @@
 #include "kernel/float_kernels.h"
 #include "host_context/kernel_utils.h"
 #include "host_context/kernel_registry.h"
-#include "types.h"
+#include "rt_types.h"
 #include <cstdio>
 
 

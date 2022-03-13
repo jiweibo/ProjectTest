@@ -28,4 +28,18 @@ class RT_Type<string name, list<Trait> traits = [],
 //   let parameters = (ins "int":$first, "int":$second);
 // }
 
+// Type constraint accepting any RT vector type.
+def RT_AnyVector : Type<CPred<"::rt::isCompatibleVectorType($_self)">, "RT dialect-compatible vector type">;
+
+class RT_VectorOf<Type element> : Type<
+  And<[RT_AnyVector.predicate,
+       SubstLeaves<
+       "$_self",
+       "::rt::getVectorElementType($_self)",
+       element.predicate>]>,
+  "RT dialect-compatible vector of " # element.summary>;
+
+// Type constraint accepting a constrained type, or a vector of such types.
+class RT_ScalarOrVectorOf<Type element> : AnyTypeOf<[element, RT_VectorOf<element>]>;
+
 #endif // RT_BASE

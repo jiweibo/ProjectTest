@@ -1,5 +1,5 @@
 #include "rt_ops.h"
-#include "types.h"
+#include "rt_types.h"
 
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/Types.h"

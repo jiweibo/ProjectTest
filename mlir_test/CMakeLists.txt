@@ -37,7 +37,7 @@ add_public_tablegen_target(MLIRRTPassIncGen)
 add_custom_target(rt_base_inc DEPENDS MLIRRTIncGen MLIRRTPassIncGen)
 
 
-set(rt_srcs rt_base.cc rt_ops.cc rt_pass.cc)
+set(rt_srcs rt_base.cc rt_ops.cc rt_pass.cc rt_types.cc)
 add_library(rt SHARED ${rt_srcs})
 target_link_libraries(rt ${mlir_libs})
 add_dependencies(rt rt_base_inc)

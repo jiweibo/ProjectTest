@@ -73,6 +73,18 @@ def NewChainOp : RT_Op<"new.chain", [NoSideEffect]> {
   // let printer = ?;
 }
 
+def NewVectorChainOp : RT_Op<"new.chains", [NoSideEffect]> {
+  let summary = "";
+  let description = [{
+
+  }];
+  let arguments = (ins I64Attr:$num);
+  let results = (outs RT_VectorOf<RT_ChainType>:$chains);
+  let parser = ?;
+  let printer = ?;
+  let verifier = ?;
+}
+
 class AddOp<string suffix, Type type>
   : RT_Op<"add." # suffix, [NoSideEffect]> {
   let summary = "rt.add operation";
