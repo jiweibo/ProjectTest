@@ -1,6 +1,6 @@
 #include "rt_types.h"
-#include "mlir/IR/Diagnostics.h"
 #include "mlir/IR/BuiltinTypes.h"
+#include "mlir/IR/Diagnostics.h"
 #include "mlir/IR/MLIRContext.h"
 #include "mlir/IR/OpDefinition.h"
 #include "mlir/IR/OpImplementation.h"
@@ -24,7 +24,8 @@ namespace detail {
 /// internal functions to avoid getting a verbose `!rt` prefix. Otherwise
 /// prints it as usual.
 static void dispatchPrint(mlir::AsmPrinter& printer, Type type) {
-  if (isCompatibleType(type) && !type.isa<mlir::IntegerType, mlir::FloatType, mlir::VectorType>())
+  if (isCompatibleType(type) &&
+      !type.isa<mlir::IntegerType, mlir::FloatType, mlir::VectorType>())
     return detail::printType(type, printer);
   printer.printType(type);
 }
@@ -32,11 +33,12 @@ static void dispatchPrint(mlir::AsmPrinter& printer, Type type) {
 /// Retuns the keyword to use for the given type.
 static llvm::StringRef getTypeKeyword(Type type) {
   return mlir::TypeSwitch<Type, llvm::StringRef>(type)
-    .Case<RTFixedVectorType, RTScalableVectorType>([&](Type) {return "vec";})
-    .Case<ChainType>([&](Type){return "chain";})
-    .Default([](Type) -> llvm::StringRef {
-      llvm_unreachable("unexpected 'rt' type kind");
-    });
+      .Case<RTFixedVectorType, RTScalableVectorType>(
+          [&](Type) { return "vec"; })
+      .Case<ChainType>([&](Type) { return "chain"; })
+      .Default([](Type) -> llvm::StringRef {
+        llvm_unreachable("unexpected 'rt' type kind");
+      });
 }
 
 /// Prints a type containing a fixed number of elements.
@@ -60,7 +62,7 @@ void printType(Type type, mlir::AsmPrinter& printer) {
 
   if (auto vectorType = type.dyn_cast<RTFixedVectorType>())
     return printArrayOrVectorType(printer, vectorType);
-  
+
   if (auto vectorType = type.dyn_cast<RTScalableVectorType>()) {
     printer << "<? x " << vectorType.getMinNumElements() << " x ";
     dispatchPrint(printer, vectorType.getElementType());
@@ -73,7 +75,8 @@ void printType(Type type, mlir::AsmPrinter& printer) {
 // Parsing.
 //===----------------------------------------------------------------------===//
 
-static mlir::ParseResult dispatchParse(mlir::AsmParser &parser, mlir::Type &type);
+static mlir::ParseResult dispatchParse(mlir::AsmParser& parser,
+                                       mlir::Type& type);
 
 /// Parse a RT dialect vector type.
 ///   rt-type ::= `vec<` `? x`? integer `x` rt-type `>`
@@ -83,20 +86,21 @@ static Type parseVectorType(mlir::AsmParser& parser) {
   mlir::SMLoc dimPos, typePos;
   Type elementType;
   mlir::SMLoc loc = parser.getCurrentLocation();
-  if (parser.parseLess() || parser.getCurrentLocation(&dimPos) || 
-      parser.parseDimensionList(dims, /*allowDynamic*/true) ||
+  if (parser.parseLess() || parser.getCurrentLocation(&dimPos) ||
+      parser.parseDimensionList(dims, /*allowDynamic*/ true) ||
       parser.getCurrentLocation(&typePos) ||
       dispatchParse(parser, elementType) || parser.parseGreater())
     return mlir::Type();
-  
+
   // We parsed a generic dimension list, but vector only support two forms:
   //  - single non-dynamic entry in the list (fixed vector);
   //  - two elements, the first dynamic (indicated by -1) and the second
   //    non-dynamic (scalable vector).
-  if (dims.empty() || dims.size() > 2 || 
+  if (dims.empty() || dims.size() > 2 ||
       ((dims.size() == 2) ^ (dims[0] == -1)) ||
       (dims.size() == 2 && dims[1] == -1)) {
-    parser.emitError(dimPos) << "expected '? x <integer> x <type>' or '<integer> x <type>'";
+    parser.emitError(dimPos)
+        << "expected '? x <integer> x <type>' or '<integer> x <type>'";
     return Type();
   }
 
@@ -104,7 +108,8 @@ static Type parseVectorType(mlir::AsmParser& parser) {
   if (isScalble)
     return parser.getChecked<RTScalableVectorType>(loc, elementType, dims[1]);
   if (elementType.isSignlessIntOrFloat()) {
-    parser.emitError(typePos) << "cannot use !rt.vec for built-in primitives, use 'vector' instead";
+    parser.emitError(typePos)
+        << "cannot use !rt.vec for built-in primitives, use 'vector' instead";
     return Type();
   }
   return parser.getChecked<RTFixedVectorType>(loc, elementType, dims[0]);
@@ -136,16 +141,17 @@ static Type dispatchParse(mlir::AsmParser& parser, bool allowAny = true) {
     return Type();
   mlir::MLIRContext* ctx = parser.getContext();
   return mlir::StringSwitch<llvm::function_ref<Type()>>(key)
-    .Case("chain", [&] { return rt::ChainType::get(ctx); })
-    .Case("vec", [&] { return parseVectorType(parser); })
-    .Default([&] {
-      parser.emitError(keyLoc) << "unknown RT type: " << key;
-      return Type();
-    })();
+      .Case("chain", [&] { return rt::ChainType::get(ctx); })
+      .Case("vec", [&] { return parseVectorType(parser); })
+      .Default([&] {
+        parser.emitError(keyLoc) << "unknown RT type: " << key;
+        return Type();
+      })();
 }
 
 /// Helper to use in parse lists.
-static mlir::ParseResult dispatchParse(mlir::AsmParser& parser, mlir::Type& type) {
+static mlir::ParseResult dispatchParse(mlir::AsmParser& parser,
+                                       mlir::Type& type) {
   type = dispatchParse(parser);
   return mlir::success(type != nullptr);
 }
@@ -162,7 +168,7 @@ Type parseType(mlir::DialectAsmParser& parser) {
   return type;
 }
 
-}  // namespace detail
+} // namespace detail
 
 //===----------------------------------------------------------------------===//
 // Vector types.
@@ -170,8 +176,10 @@ Type parseType(mlir::DialectAsmParser& parser) {
 
 /// Verifies that the type about to be constructed is well-formed.
 template <typename VecTy>
-static LogicalResult verifyVectorConstructionInvariants(function_ref<InFlightDiagnostic()> emitError, Type elementType, unsigned numElements) {
-  if (numElements == 0) 
+static LogicalResult
+verifyVectorConstructionInvariants(function_ref<InFlightDiagnostic()> emitError,
+                                   Type elementType, unsigned numElements) {
+  if (numElements == 0)
     return emitError() << "the number of vector elements must be positive";
 
   if (!VecTy::isValidElementType(elementType))
@@ -180,24 +188,25 @@ static LogicalResult verifyVectorConstructionInvariants(function_ref<InFlightDia
   return mlir::success();
 }
 
-RTFixedVectorType RTFixedVectorType::get(Type elementType, unsigned int numElements) {
+RTFixedVectorType RTFixedVectorType::get(Type elementType,
+                                         unsigned int numElements) {
   assert(elementType && "expected non-null subtype");
   return Base::get(elementType.getContext(), elementType, numElements);
 }
 
-RTFixedVectorType RTFixedVectorType::getChecked(function_ref<InFlightDiagnostic()> emitError,
-                                                Type elementType, unsigned numElements) {
+RTFixedVectorType
+RTFixedVectorType::getChecked(function_ref<InFlightDiagnostic()> emitError,
+                              Type elementType, unsigned numElements) {
   assert(elementType && "expected non-null subtype");
-  return Base::getChecked(emitError, elementType.getContext(), elementType, numElements);
+  return Base::getChecked(emitError, elementType.getContext(), elementType,
+                          numElements);
 }
 
 Type RTFixedVectorType::getElementType() {
   return static_cast<detail::RTTypeAndSizeStorage*>(impl)->elementType;
 }
 
-unsigned RTFixedVectorType::getNumElements() {
-  return getImpl()->numElements;
-}
+unsigned RTFixedVectorType::getNumElements() { return getImpl()->numElements; }
 
 bool RTFixedVectorType::isValidElementType(Type type) {
   // TODO(wilber): add valid type.
@@ -205,22 +214,29 @@ bool RTFixedVectorType::isValidElementType(Type type) {
   return true;
 }
 
-LogicalResult RTFixedVectorType::verify(function_ref<InFlightDiagnostic ()> emitError, Type elementType, unsigned int numElements) {
-  return verifyVectorConstructionInvariants<RTFixedVectorType>(emitError, elementType, numElements);
+LogicalResult
+RTFixedVectorType::verify(function_ref<InFlightDiagnostic()> emitError,
+                          Type elementType, unsigned int numElements) {
+  return verifyVectorConstructionInvariants<RTFixedVectorType>(
+      emitError, elementType, numElements);
 }
 
 //===----------------------------------------------------------------------===//
 // RTScalableVectorType.
 //===----------------------------------------------------------------------===//
 
-RTScalableVectorType RTScalableVectorType::get(Type elementType, unsigned minNumElements) {
+RTScalableVectorType RTScalableVectorType::get(Type elementType,
+                                               unsigned minNumElements) {
   assert(elementType && "expected non-null subtype");
   return Base::get(elementType.getContext(), elementType, minNumElements);
 }
 
-RTScalableVectorType RTScalableVectorType::getChecked(function_ref<InFlightDiagnostic()> emitError, Type elementType, unsigned minNumElements) {
+RTScalableVectorType
+RTScalableVectorType::getChecked(function_ref<InFlightDiagnostic()> emitError,
+                                 Type elementType, unsigned minNumElements) {
   assert(elementType && "expected non-null subtype");
-  return Base::getChecked(emitError, elementType.getContext(), elementType, minNumElements);
+  return Base::getChecked(emitError, elementType.getContext(), elementType,
+                          minNumElements);
 }
 
 Type RTScalableVectorType::getElementType() {
@@ -238,8 +254,11 @@ bool RTScalableVectorType::isValidElementType(Type type) {
   return true;
 }
 
-LogicalResult RTScalableVectorType::verify(function_ref<InFlightDiagnostic ()> emitError, Type elementType, unsigned int minNumElements) {
-  return verifyVectorConstructionInvariants<RTScalableVectorType>(emitError, elementType, minNumElements);
+LogicalResult
+RTScalableVectorType::verify(function_ref<InFlightDiagnostic()> emitError,
+                             Type elementType, unsigned int minNumElements) {
+  return verifyVectorConstructionInvariants<RTScalableVectorType>(
+      emitError, elementType, minNumElements);
 }
 
 //===----------------------------------------------------------------------===//
@@ -247,22 +266,16 @@ LogicalResult RTScalableVectorType::verify(function_ref<InFlightDiagnostic ()> e
 //===----------------------------------------------------------------------===//
 
 bool isCompatibleOuterType(Type type) {
-  if (type.isa<
-      ChainType,
-      mlir::Float16Type,
-      mlir::Float32Type,
-      mlir::Float64Type,
-      mlir::Float128Type,
-      RTFixedVectorType,
-      RTScalableVectorType
-      >()) {
+  if (type.isa<ChainType, mlir::Float16Type, mlir::Float32Type,
+               mlir::Float64Type, mlir::Float128Type, RTFixedVectorType,
+               RTScalableVectorType>()) {
     return true;
   }
 
   // Only signless integers are compatible.
   if (auto intType = type.dyn_cast<mlir::IntegerType>())
     return intType.isSignless();
-  
+
   // 1D vector types are compatible.
   if (auto vecType = type.dyn_cast<mlir::VectorType>())
     return vecType.getRank() == 1;
@@ -270,35 +283,36 @@ bool isCompatibleOuterType(Type type) {
   return false;
 }
 
-bool isCompatibleType(Type type) {
-  return true;
-}
+bool isCompatibleType(Type type) { return true; }
 
 bool isCompatibleFloatingPointType(Type type) {
-  return type.isa<mlir::Float16Type, mlir::Float32Type, mlir::Float64Type, mlir::Float128Type>();
+  return type.isa<mlir::Float16Type, mlir::Float32Type, mlir::Float64Type,
+                  mlir::Float128Type>();
 }
 
 bool isCompatibleVectorType(Type type) {
-  if (type.isa<RTFixedVectorType, RTScalableVectorType>()) 
+  if (type.isa<RTFixedVectorType, RTScalableVectorType>())
     return true;
-  
+
   if (auto vecType = type.dyn_cast<mlir::VectorType>()) {
     if (vecType.getRank() != 1)
       return false;
     Type elementType = vecType.getElementType();
     if (auto intType = elementType.dyn_cast<mlir::IntegerType>())
       return intType.isSignless();
-    return elementType.isa<mlir::Float16Type, mlir::Float32Type, mlir::Float64Type, mlir::Float128Type>();
+    return elementType.isa<mlir::Float16Type, mlir::Float32Type,
+                           mlir::Float64Type, mlir::Float128Type>();
   }
   return false;
 }
 
 Type getVectorElementType(Type type) {
   return llvm::TypeSwitch<Type, Type>(type)
-    .Case<RTFixedVectorType, RTScalableVectorType, mlir::VectorType>([](auto ty) { return ty.getElementType(); })
-    .Default([](Type) -> Type {
-      llvm_unreachable("incompatible with RT vector type");
-    });
+      .Case<RTFixedVectorType, RTScalableVectorType, mlir::VectorType>(
+          [](auto ty) { return ty.getElementType(); })
+      .Default([](Type) -> Type {
+        llvm_unreachable("incompatible with RT vector type");
+      });
 }
 
-}  // namespace rt
+} // namespace rt

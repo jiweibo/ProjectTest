@@ -99,7 +99,7 @@ private:
   template <typename T> 
   static void HandleReturn(KernelFrame* frame, T&& t) {
     assert(frame->GetNumResults() == 1 && "Extra results passes to kernel.");
-    StoreResultAt(frame, index, std::forward<T>(t));
+    StoreResultAt(frame, 0, std::forward<T>(t));
   }
 
   // For kernel function that return std::pair<>, store the result as the first

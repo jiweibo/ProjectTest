@@ -26,14 +26,12 @@ namespace rt {
 /// Dialect initialization, the instance will be owned by the context. This is
 /// the point of registration of types and operations for the dialect.
 void RTDialect::initialize() {
-//   addTypes<
-// #define GET_TYPEDEF_LIST
-// #include "rt_types.cpp.inc"
-//       >();
+  //   addTypes<
+  // #define GET_TYPEDEF_LIST
+  // #include "rt_types.cpp.inc"
+  //       >();
 
-  addTypes<ChainType,
-           RTFixedVectorType,
-           RTScalableVectorType>();
+  addTypes<ChainType, RTFixedVectorType, RTScalableVectorType>();
 
   addOperations<
 #define GET_OP_LIST
@@ -41,12 +39,12 @@ void RTDialect::initialize() {
       >();
 }
 
-mlir::Type RTDialect::parseType(mlir::DialectAsmParser &parser) const {
+mlir::Type RTDialect::parseType(mlir::DialectAsmParser& parser) const {
   return detail::parseType(parser);
 }
 
 void RTDialect::printType(mlir::Type type,
-                          mlir::DialectAsmPrinter &printer) const {
+                          mlir::DialectAsmPrinter& printer) const {
   return detail::printType(type, printer);
 }
 

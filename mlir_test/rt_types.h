@@ -14,10 +14,10 @@
 #include <tuple>
 #include <utility>
 
-using mlir::Type;
-using mlir::LogicalResult;
 using mlir::function_ref;
 using mlir::InFlightDiagnostic;
+using mlir::LogicalResult;
+using mlir::Type;
 using mlir::TypeStorage;
 
 namespace rt {
@@ -34,11 +34,13 @@ namespace detail {
 struct RTTypeAndSizeStorage : public TypeStorage {
   using KeyTy = std::tuple<Type, unsigned>;
 
-  RTTypeAndSizeStorage(const KeyTy& key) 
-    : elementType(std::get<0>(key)), numElements(std::get<1>(key)) {}
-  
-  static RTTypeAndSizeStorage *construct(mlir::TypeStorageAllocator& allocator, const KeyTy& key) {
-    return new (allocator.allocate<RTTypeAndSizeStorage>()) RTTypeAndSizeStorage(key);
+  RTTypeAndSizeStorage(const KeyTy& key)
+      : elementType(std::get<0>(key)), numElements(std::get<1>(key)) {}
+
+  static RTTypeAndSizeStorage* construct(mlir::TypeStorageAllocator& allocator,
+                                         const KeyTy& key) {
+    return new (allocator.allocate<RTTypeAndSizeStorage>())
+        RTTypeAndSizeStorage(key);
   }
 
   bool operator==(const KeyTy& key) const {
@@ -58,8 +60,7 @@ Type parseType(mlir::DialectAsmParser& parser);
 
 /// Prints an RT dialect type.
 void printType(Type type, mlir::AsmPrinter& printer);
-}  // namespace detail
-
+} // namespace detail
 
 class ChainType
     : public mlir::Type::TypeBase<ChainType, Type, mlir::TypeStorage> {
@@ -74,7 +75,7 @@ public:
 /// RT dialect vector type, represents a sequence of elements that can be
 /// processed as one. This is a base class for fixed and scalable vectors.
 class RTVectorType : public Type {
- public:
+public:
   /// Inherit base constructor.
   using Type::Type;
 
@@ -99,8 +100,9 @@ class RTVectorType : public Type {
 
 /// RT dialect fixed vector type, represents a sequence of elements of known
 /// length that can be processed as one.
-class RTFixedVectorType : public Type::TypeBase<RTFixedVectorType, Type, detail::RTTypeAndSizeStorage> {
- public:
+class RTFixedVectorType : public Type::TypeBase<RTFixedVectorType, Type,
+                                                detail::RTTypeAndSizeStorage> {
+public:
   /// Inherit base constructor.
   using Base::Base;
   using Base::getChecked;
@@ -108,7 +110,9 @@ class RTFixedVectorType : public Type::TypeBase<RTFixedVectorType, Type, detail:
   /// Gets or creates a fixed vector type containing `numElements` of
   /// `elementType` in the same context as `elementType`.
   static RTFixedVectorType get(Type elementType, unsigned numElements);
-  static RTFixedVectorType getChecked(function_ref<InFlightDiagnostic()> emitError, Type elementType, unsigned numElements);
+  static RTFixedVectorType
+  getChecked(function_ref<InFlightDiagnostic()> emitError, Type elementType,
+             unsigned numElements);
 
   static bool isValidElementType(Type type);
 
@@ -116,7 +120,8 @@ class RTFixedVectorType : public Type::TypeBase<RTFixedVectorType, Type, detail:
 
   unsigned getNumElements();
 
-  static LogicalResult verify(function_ref<InFlightDiagnostic()> emitError, Type elementType, unsigned numElements);
+  static LogicalResult verify(function_ref<InFlightDiagnostic()> emitError,
+                              Type elementType, unsigned numElements);
 };
 
 //===----------------------------------------------------------------------===//
@@ -125,8 +130,10 @@ class RTFixedVectorType : public Type::TypeBase<RTFixedVectorType, Type, detail:
 
 /// RT dialect scalable vector type, represents a sequence of elements of
 /// unknown length that is known to be divisible by some constant.
-class RTScalableVectorType : public Type::TypeBase<RTScalableVectorType, Type, detail::RTTypeAndSizeStorage> {
- public:
+class RTScalableVectorType
+    : public Type::TypeBase<RTScalableVectorType, Type,
+                            detail::RTTypeAndSizeStorage> {
+public:
   /// Inherit base constructor.
   using Base::Base;
   using Base::getChecked;
@@ -134,7 +141,9 @@ class RTScalableVectorType : public Type::TypeBase<RTScalableVectorType, Type, d
   /// Gets or creates a scalable vector type containing a non-zero multiple of
   /// `minNumElements` of `elementType` in the same context as `elementType`.
   static RTScalableVectorType get(Type elementType, unsigned minNumElements);
-  static RTScalableVectorType getChecked(function_ref<InFlightDiagnostic()> emitError, Type elementType, unsigned minNumElements);
+  static RTScalableVectorType
+  getChecked(function_ref<InFlightDiagnostic()> emitError, Type elementType,
+             unsigned minNumElements);
 
   /// Checks if the given type can be used in vector type.
   static bool isValidElementType(Type type);
@@ -148,7 +157,8 @@ class RTScalableVectorType : public Type::TypeBase<RTScalableVectorType, Type, d
   unsigned getMinNumElements();
 
   /// Verifies that the type about to be constructed is well-formed.
-  static LogicalResult verify(function_ref<InFlightDiagnostic()> emitError, Type elementType, unsigned minNumElements);
+  static LogicalResult verify(function_ref<InFlightDiagnostic()> emitError,
+                              Type elementType, unsigned minNumElements);
 };
 
 //===----------------------------------------------------------------------===//
@@ -175,6 +185,6 @@ bool isCompatibleVectorType(Type type);
 /// Returns the element type of any vector type compatible with the RT dialect.
 Type getVectorElementType(Type type);
 
-}  // namespace rt
+} // namespace rt
 
 #endif // RT_TYPES_H_
