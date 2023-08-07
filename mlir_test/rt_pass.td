@@ -1,6 +1,7 @@
 #ifndef RT_PASS
 #define RT_PASS
 
+include "mlir/IR/PatternBase.td"
 include "rt_ops.td"
 
 // rt.add.i32 -> rt.mul.i32
