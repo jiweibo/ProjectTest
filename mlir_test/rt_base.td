@@ -15,10 +15,10 @@ def RT_ChainType :
     DialectType<RT_Dialect, CPred<"$_self.isa<rt::ChainType>()">, "!rt.chain type">,
     BuildableType<"$_builder.getType<rt::ChainType>()">;
 
-class RT_Type<string name, list<Trait> traits = [],
-              string baseCppClass = "::mlir::Type">
-      : TypeDef<RT_Dialect, name, traits, baseCppClass> {
-}
+// class RT_Type<string name, list<Trait> traits = [],
+//              string baseCppClass = "::mlir::Type">
+//      : TypeDef<RT_Dialect, name, traits, baseCppClass> {
+// }
 
 // def RT_PairType : RT_Type<"Pair"> {
 //   let summary = "rt::PairType";

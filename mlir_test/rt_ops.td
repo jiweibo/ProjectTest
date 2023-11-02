@@ -10,9 +10,9 @@ class RT_Op<string mnemonic, list<Trait> traits = []>
 
   // Each registered op in the rt namespace needs to provide all of a printer,
   // parser and verifier.
-  let parser = [{ return rt::parse$cppClass(parser, result); }];
-  let printer = [{ return rt::print(p, *this); }];
-  let verifier = [{ return rt::verify(*this); }];
+  // let parser = [{ return rt::parse$cppClass(parser, result); }];
+  // let printer = [{ return rt::print(p, *this); }];
+  // let verifier = [{ return rt::verify(*this); }];
 }
 
 def ReturnOp : RT_Op<"return", [Terminator]> {
@@ -41,7 +41,7 @@ class ConstantOp<string suffix, Type baseType, Attr attr>
   let arguments = (ins attr:$value);
   let results = (outs baseType);
   let assemblyFormat = "$value attr-dict";
-  let verifier = ?;
+  // let verifier = ?;
 }
 
 def ConstantI1Op  : ConstantOp<"i1", I1, I1Attr>;
@@ -68,7 +68,7 @@ def NewChainOp : RT_Op<"new.chain", [NoSideEffect]> {
   let arguments = (ins);
   let results = (outs RT_ChainType);
   let assemblyFormat = "attr-dict";
-  let verifier = ?;
+  // let verifier = ?;
   // let parser = ?;
   // let printer = ?;
 }
@@ -80,9 +80,9 @@ def NewVectorChainOp : RT_Op<"new.chains", [NoSideEffect]> {
   }];
   let arguments = (ins I64Attr:$num);
   let results = (outs RT_VectorOf<RT_ChainType>:$chains);
-  let parser = ?;
-  let printer = ?;
-  let verifier = ?;
+  // let parser = ?;
+  // let printer = ?;
+  // let verifier = ?;
 }
 
 class AddOp<string suffix, Type type>
@@ -97,7 +97,7 @@ class AddOp<string suffix, Type type>
   let arguments = (ins type, type);
   let results = (outs type);
   let assemblyFormat = "operands attr-dict";
-  let verifier = ?;
+  // let verifier = ?;
 }
 def AddI32 : AddOp<"i32", I32> {
   // Enable registering canonicalization patterns with this operation.
@@ -119,7 +119,7 @@ class MulOp<string suffix, Type type>
   let arguments = (ins type, type);
   let results = (outs type);
   let assemblyFormat = "operands attr-dict";
-  let verifier = ?;
+  // let verifier = ?;
 }
 
 def MulI32Op : MulOp<"i32", I32>;
@@ -139,9 +139,9 @@ class PrintOp<string suffix, Type type>
   let arguments = (ins type, RT_ChainType);
   let results = (outs RT_ChainType);
   // let assemblyFormat = "operands attr-dict";
-  let verifier = ?;
-  let parser = ?;
-  let printer = ?;
+  // let verifier = ?;
+  // let parser = ?;
+  // let printer = ?;
 }
 def PrintI1Op : PrintOp<"i1", I1>;
 def PrintI32Op : PrintOp<"i32", I32>;

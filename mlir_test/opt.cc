@@ -5,7 +5,7 @@
 #include "init_rt_dialects.h"
 #include "mlir/IR/Dialect.h"
 #include "mlir/Support/LogicalResult.h"
-#include "mlir/Support/MlirOptMain.h"
+#include "mlir/Tools/mlir-opt/MlirOptMain.h"
 #include "mlir/Transforms/Passes.h"
 
 int main(int argc, char** argv) {
