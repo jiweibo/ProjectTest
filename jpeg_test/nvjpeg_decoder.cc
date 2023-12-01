@@ -85,43 +85,44 @@ NvJpegDecoder::~NvJpegDecoder() {
 
 bool NvJpegDecoder::Decode(const uint8_t* buffer, size_t buffer_size,
                            cv::Mat* image) {
+  if (buffer_size == 0) return false;
   int widths[NVJPEG_MAX_COMPONENT];
   int heights[NVJPEG_MAX_COMPONENT];
   int channels;
   nvjpegChromaSubsampling_t subsampling;
-  nvjpegGetImageInfo(nvjpeg_handle_, buffer, buffer_size, &channels,
-                     &subsampling, widths, heights);
-  // std::cout << "Image is " << channels << " channels." << std::endl;
-  // for (int c = 0; c < channels; c++) {
-  //   std::cout << "Channel #" << c << " size: " << widths[c] << " x "
-  //             << heights[c] << std::endl;
-  // }
-  // switch (subsampling) {
-  // case NVJPEG_CSS_444:
-  //   std::cout << "YUV 4:4:4 chroma subsampling" << std::endl;
-  //   break;
-  // case NVJPEG_CSS_440:
-  //   std::cout << "YUV 4:4:0 chroma subsampling" << std::endl;
-  //   break;
-  // case NVJPEG_CSS_422:
-  //   std::cout << "YUV 4:2:2 chroma subsampling" << std::endl;
-  //   break;
-  // case NVJPEG_CSS_420:
-  //   std::cout << "YUV 4:2:0 chroma subsampling" << std::endl;
-  //   break;
-  // case NVJPEG_CSS_411:
-  //   std::cout << "YUV 4:1:1 chroma subsampling" << std::endl;
-  //   break;
-  // case NVJPEG_CSS_410:
-  //   std::cout << "YUV 4:1:0 chroma subsampling" << std::endl;
-  //   break;
-  // case NVJPEG_CSS_GRAY:
-  //   std::cout << "Grayscale JPEG " << std::endl;
-  //   break;
-  // case NVJPEG_CSS_UNKNOWN:
-  //   std::cout << "Unknown chroma subsampling" << std::endl;
-  //   return EXIT_FAILURE;
-  // }
+  CHECK_NVJPEG(nvjpegGetImageInfo(nvjpeg_handle_, buffer, buffer_size, &channels,
+                     &subsampling, widths, heights));
+  //std::cout << "Image is " << channels << " channels." << std::endl;
+  //for (int c = 0; c < channels; c++) {
+  //  std::cout << "Channel #" << c << " size: " << widths[c] << " x "
+  //            << heights[c] << std::endl;
+  //}
+  //switch (subsampling) {
+  //case NVJPEG_CSS_444:
+  //  std::cout << "YUV 4:4:4 chroma subsampling" << std::endl;
+  //  break;
+  //case NVJPEG_CSS_440:
+  //  std::cout << "YUV 4:4:0 chroma subsampling" << std::endl;
+  //  break;
+  //case NVJPEG_CSS_422:
+  //  std::cout << "YUV 4:2:2 chroma subsampling" << std::endl;
+  //  break;
+  //case NVJPEG_CSS_420:
+  //  std::cout << "YUV 4:2:0 chroma subsampling" << std::endl;
+  //  break;
+  //case NVJPEG_CSS_411:
+  //  std::cout << "YUV 4:1:1 chroma subsampling" << std::endl;
+  //  break;
+  //case NVJPEG_CSS_410:
+  //  std::cout << "YUV 4:1:0 chroma subsampling" << std::endl;
+  //  break;
+  //case NVJPEG_CSS_GRAY:
+  //  std::cout << "Grayscale JPEG " << std::endl;
+  //  break;
+  //case NVJPEG_CSS_UNKNOWN:
+  //  std::cout << "Unknown chroma subsampling" << std::endl;
+  //  return EXIT_FAILURE;
+  //}
 
   int mul = 1;
   // in the case of interleaved RGB output, write only to single channel, but
@@ -179,12 +180,12 @@ bool NvJpegDecoder::Decode(const uint8_t* buffer, size_t buffer_size,
   }
 
   if (fmt_ == NVJPEG_OUTPUT_BGRI || fmt_ == NVJPEG_OUTPUT_RGBI) {
-    cudaMemcpyAsync(image->data, decode_out_.channel[0],
+    CHECK_CUDA(cudaMemcpyAsync(image->data, decode_out_.channel[0],
                     heights[0] * widths[0] * 3, cudaMemcpyDeviceToHost,
-                    stream_);
-    cudaStreamSynchronize(stream_);
+                    stream_));
+    CHECK_CUDA(cudaStreamSynchronize(stream_));
   } else if (fmt_ == NVJPEG_OUTPUT_BGR || fmt_ == NVJPEG_OUTPUT_RGB) {
-    cudaStreamSynchronize(stream_);
+    CHECK_CUDA(cudaStreamSynchronize(stream_));
     cv::cuda::GpuMat g1(heights[0], widths[0], CV_8UC1, decode_out_.channel[0]);
     cv::cuda::GpuMat g2(heights[0], widths[0], CV_8UC1, decode_out_.channel[1]);
     cv::cuda::GpuMat g3(heights[0], widths[0], CV_8UC1, decode_out_.channel[2]);
