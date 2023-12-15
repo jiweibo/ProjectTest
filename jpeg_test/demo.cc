@@ -7,6 +7,9 @@
 #include <ratio>
 #include <utility>
 
+#include <thread>
+#include "thread_pool.h"
+
 #include "nvjpeg_decoder.h"
 #include "opencv2/imgcodecs.hpp"
 
@@ -47,16 +50,18 @@ int main(int agrc, char** argv) {
                    repeats
             << "ms" << std::endl;
 
-  NvJpegDecoder nv_decoder(NVJPEG_OUTPUT_BGRI);
+  NvJpegDecoder nv_decoder(NVJPEG_OUTPUT_RGBI, 0);
 
   cv::Mat mat2;
   for (int i = 0; i < warmup; ++i) {
     nv_decoder.Decode(static_cast<const uint8_t*>(buffer), length, &mat2);
   }
 
+  ThreadPool tp(4);
   t1 = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < repeats; ++i) {
-    nv_decoder.Decode(static_cast<const uint8_t*>(buffer), length, &mat2);
+    auto res = tp.enqueue(&NvJpegDecoder::Decode, std::ref(nv_decoder), static_cast<const uint8_t*>(buffer), length, &mat2);
+    auto tt = res.get();
   }
   t2 = std::chrono::high_resolution_clock::now();
   std::cout << "time: "
